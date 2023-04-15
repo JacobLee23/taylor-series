@@ -1,8 +1,13 @@
 """
 """
 
+import decimal
+from decimal import Decimal
 from numbers import Number
 import typing
+
+
+OneVarFunction = typing.Callable[[Number], Number]
 
 
 class FiniteDifference:
@@ -10,16 +15,11 @@ class FiniteDifference:
 
     :param func:
     """
-    def __init__(self, func: typing.Callable[[Number], Number]):
+    def __init__(self, func: OneVarFunction):
         self.func = func
 
-    @classmethod
-    def forward_difference(
-        cls,
-        func: typing.Callable[[Number], Number],
-        x: Number,
-        h: Number
-    ) -> Number:
+    @staticmethod
+    def forward(func: OneVarFunction, x: Decimal, h: Decimal) -> Decimal:
         r"""
         .. math::
 
@@ -31,13 +31,8 @@ class FiniteDifference:
         """
         return func(x + h) - func(x)
     
-    @classmethod
-    def backward_difference(
-        cls,
-        func: typing.Callable[[Number], Number],
-        x: Number,
-        h: Number
-    ) -> Number:
+    @staticmethod
+    def backward(func: OneVarFunction, x: Decimal, h: Decimal) -> Decimal:
         r"""
         .. math::
 
@@ -49,13 +44,8 @@ class FiniteDifference:
         """
         return func(x) - func(x - h)
     
-    @classmethod
-    def central_difference(
-        cls,
-        func: typing.Callable[[Number], Number],
-        x: Number,
-        h: Number
-    ) -> Number:
+    @staticmethod
+    def central(func: OneVarFunction, x: Decimal, h: Decimal) -> Decimal:
         r"""
         .. math::
 
@@ -66,3 +56,40 @@ class FiniteDifference:
         :return:
         """
         return func(x + h / 2) - func(x - h / 2)
+    
+
+@typing.runtime_checkable
+class FDiffType(typing.Protocol):
+    """
+    """
+    def __call__(self, func: OneVarFunction, x: Decimal, h: Decimal) -> Decimal: ...
+
+
+class DifferenceQuotient:
+    """
+    """
+    def __init__(self, func: OneVarFunction):
+        self.func = func
+
+    def __call__(self, fdiff: FDiffType, x: Number, *, prec: int = 100) -> OneVarFunction:
+        """
+        :param fdiff:
+        :param x:
+        :param prec:
+        :return:
+        """
+        with decimal.localcontext() as ctx:
+            ctx.prec = prec + 2
+
+            p, res = 1, Decimal(0)
+            while True:
+                h = Decimal(f"1E-{p}")
+
+                if h == 0 or fdiff(self.func, x, h) == 0:
+                    break
+
+                res = fdiff(self.func, x, h) / h
+
+                p *= 2
+
+            return res.quantize(Decimal(f"1E-{prec}"))
