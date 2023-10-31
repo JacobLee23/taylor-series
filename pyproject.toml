@@ -5,12 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "taylor-series"
 version = "0.0.0"
-authors = [
-  { name="Jacob Lee", email="Jacob.J.Lee@outlook.com" },
-]
-description = "Computation of Taylor Series"
+description = "Python package for Taylor series computation."
 readme = "README.md"
-requires-python = ">=3.6"
+authors = [ { name = "Jacob Lee", email = "Jacob.J.Lee@outlook.com" } ]
+license = [ { file = "LICENSE" } ]
 classifiers = [
   "Development Status :: 1 - Planning",
   "License :: OSI Approved :: MIT License",
@@ -25,10 +23,13 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Topic :: Scientific/Engineering :: Mathematics",
 ]
+requires-python = ">=3.6"
+dependencies = []
 
 [project.urls]
 "Homepage" = "https://github.com/JacobLee23/taylor-series"
 
 [tools.setuptools.packages.find]
 where = ["."]
-include = ["taylor_series"]
+include = ["taylor*"]
+exclude = ["taylor.docs*", "taylor.tests*"]
