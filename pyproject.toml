@@ -31,4 +31,5 @@ classifiers = [
 
 [tools.setuptools.packages.find]
 where = ["."]
-include = ["taylor_series"]
+include = ["taylor*"]
+exclude = ["taylor.docs*", "taylor.tests*"]
